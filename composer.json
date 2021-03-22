@@ -1,0 +1,27 @@
+{
+    "name": "anovob/laravel-nagad-api",
+    "description": "Nagad Payment Gateway for Laravel (Bangladesh)",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["Nagad API", "Nagad"],
+    "authors": [
+        {
+            "name": "A S M Saief",
+            "email": "info@asmsaief.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {},
+    "autoload": {
+        "psr-0": {
+            "NagadAPI": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "NagadAPI\\NagadServiceProvider"
+            ]
+        }
+    }
+}
