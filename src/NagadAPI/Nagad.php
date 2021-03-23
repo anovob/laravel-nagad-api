@@ -24,7 +24,7 @@ class Nagad extends NagadGenerator
      */
     private function __initialize()
     {
-        $this->BASE_URL = config('nagad.sandbox') == 'sandbox' ? config('nagad.domain.sandbox') : config('nagad.domain.live');
+        $this->BASE_URL = config('nagad.sandbox') ? config('nagad.domain.sandbox') : config('nagad.domain.live');
         $this->MERCHANT_ID = config('nagad.merchant.id');
         $this->CALLBACK_URL = route(config('nagad.callback'));
         $this->DATETIME = now()->format('YmdHis');

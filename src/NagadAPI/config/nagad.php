@@ -8,7 +8,7 @@ return [
      * use 'false' to enable Live Payments
      */
 
-    'sandbox' => env('NAGAD_METHOD', 'sandbox'),
+    'sandbox' => env('SANDBOX', true),
 
     'domain' => [
 
