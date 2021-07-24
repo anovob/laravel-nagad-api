@@ -140,6 +140,7 @@ To Start payment, in your NagadController:
 ```
 
 To receive error response use this in App/Exceptions/Handler.php:
+
 Upto Laravel 7
 ```php    
 use NagadAPI\Exceptions\NagadException;
