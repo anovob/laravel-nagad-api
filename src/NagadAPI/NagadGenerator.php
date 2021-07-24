@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 class NagadGenerator
 {
     protected $MERCHANT_ID;
+    protected $MERCHANT_ACCOUNT;
     protected $BASE_URL;
     protected $ORDER_ID;
     protected $AMOUNT;
@@ -18,7 +19,9 @@ class NagadGenerator
     protected $REDIRECT_URL;
     protected $CALLBACK_RESPONSE;
     protected $VERIFIED_RESPONSE;
-    
+    protected $HELPER;
+    protected $TIMEZONE;
+
     /**
      * generateSensitiveData
      *
@@ -30,7 +33,7 @@ class NagadGenerator
             'merchantId' => $this->MERCHANT_ID,
             'datetime' => $this->DATETIME,
             'orderId' => $this->ORDER_ID,
-            'challenge' => NagadHelper::generateRandomString()
+            'challenge' => $this->HELPER->generateRandomString()
         ];
     }
     
@@ -58,11 +61,11 @@ class NagadGenerator
      */    
     protected function generatePaymentRequest(array $sensitiveData) : array
     {
-        return NagadHelper::HttpPostMethod($this->BASE_URL.config('nagad.endpoints.checkout-init').'/'.$this->MERCHANT_ID.'/'.$this->ORDER_ID, [
-            'accountNumber' => config('nagad.merchant.phone'),
+        return $this->HELPER->HttpPostMethod($this->BASE_URL.config('nagad.endpoints.checkout-init').'/'.$this->MERCHANT_ID.'/'.$this->ORDER_ID, [
+            'accountNumber' => $this->MERCHANT_ACCOUNT,
             'dateTime' => $this->DATETIME,
-            'sensitiveData' => NagadHelper::EncryptDataWithPublicKey(json_encode($sensitiveData)),
-            'signature' => NagadHelper::SignatureGenerate(json_encode($sensitiveData)) 
+            'sensitiveData' => $this->HELPER->EncryptDataWithPublicKey(json_encode($sensitiveData)),
+            'signature' => $this->HELPER->SignatureGenerate(json_encode($sensitiveData))
         ]);
     }
     
@@ -74,7 +77,7 @@ class NagadGenerator
      */
     protected function decryptInitialResponse(array $response): bool
     {
-        $plainResponse = json_decode(NagadHelper::DecryptDataWithPrivateKey($response['sensitiveData']), true);
+        $plainResponse = json_decode($this->HELPER->DecryptDataWithPrivateKey($response['sensitiveData']), true);
 
         if(isset($plainResponse['paymentReferenceId']) && isset($plainResponse['challenge'])) {
             $this->PAYMENT_REF_ID = $plainResponse['paymentReferenceId'];
@@ -92,9 +95,9 @@ class NagadGenerator
      */
     protected function completePaymentRequest(array $sensitiveOrderData): array
     {
-        return NagadHelper::HttpPostMethod($this->BASE_URL.config('nagad.endpoints.checkout-complete').'/'.$this->PAYMENT_REF_ID, [
-            'sensitiveData' => NagadHelper::EncryptDataWithPublicKey(json_encode($sensitiveOrderData)),
-            'signature' => NagadHelper::SignatureGenerate(json_encode($sensitiveOrderData)),
+        return $this->HELPER->HttpPostMethod($this->BASE_URL.config('nagad.endpoints.checkout-complete').'/'.$this->PAYMENT_REF_ID, [
+            'sensitiveData' => $this->HELPER->EncryptDataWithPublicKey(json_encode($sensitiveOrderData)),
+            'signature' => $this->HELPER->SignatureGenerate(json_encode($sensitiveOrderData)),
             'merchantCallbackURL' => $this->CALLBACK_URL,
             'additionalMerchantInfo' => (object)$this->ADDITIONAL
         ]);
@@ -108,6 +111,6 @@ class NagadGenerator
     protected function verifyPayment()
     {
         $payment_ref_id = $this->CALLBACK_RESPONSE->payment_ref_id;
-        $this->VERIFIED_RESPONSE = NagadHelper::HttpGetMethod($this->BASE_URL.config('nagad.endpoints.payment-verify').'/'.$payment_ref_id);
+        $this->VERIFIED_RESPONSE = $this->HELPER->HttpGetMethod($this->BASE_URL.config('nagad.endpoints.payment-verify').'/'.$payment_ref_id);
     }
 }

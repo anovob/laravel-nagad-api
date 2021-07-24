@@ -8,9 +8,7 @@ return [
      * use 'false' to enable Live Payments
      */
 
-    'sandbox' => env('SANDBOX', true),
-
-    'domain' => [
+   'domain' => [
 
         /**
          * Domains for Live and Sandbox Mode
@@ -28,46 +26,5 @@ return [
         'checkout-complete'     => '/check-out/complete/',
         'payment-verify'        => '/verify/payment/',
     ],
-
-    /**
-     * The Merchant Informations
-     */
-    'merchant' => [
-        /**
-         * Merchant ID
-         * --------------------
-         * Given upon registration as a merchant
-         */
-        'id'    => env('NAGAD_MERHCANT_ID', null),
-        /**
-         * Merchant Phone
-         * --------------------
-         * Given upon registration as a merchant
-         */
-        'phone' => env('NAGAD_MERHCANT_PHONE', null),
-        'key'   => [
-            /**
-             * The NagadPG Public Key
-             * Usually given through email upon registration
-             */
-            'public'    => env('NAGAD_KEY_PUBLIC', null),
-            /**
-             * The Merchant Private Key
-             * Usually given through email upon registration
-             */
-            'private'   => env('NAGAD_KEY_PRIVATE', null),
-        ]
-    ],
-    /**
-     * Calback URL Route Name
-     * --------------------------
-     * This is the laravel route name for
-     * the callback url of your application.
-     * 
-     * eg: 'nagad.callback'
-     * 
-     * Notes: Do not use url here, only route name
-     */
-    'callback' => env('NAGAD_CALLBACK_URL', null)
 
 ];

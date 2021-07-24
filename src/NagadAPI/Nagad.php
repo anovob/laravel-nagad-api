@@ -12,9 +12,9 @@ class Nagad extends NagadGenerator
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($config)
     {
-        $this->__initialize();
+        $this->__initialize($config);
     }
     
     /**
@@ -22,12 +22,24 @@ class Nagad extends NagadGenerator
      *
      * @return void
      */
-    private function __initialize()
+    private function __initialize($config)
     {
-        $this->BASE_URL = config('nagad.sandbox') ? config('nagad.domain.sandbox') : config('nagad.domain.live');
-        $this->MERCHANT_ID = config('nagad.merchant.id');
-        $this->CALLBACK_URL = route(config('nagad.callback'));
+        $this->HELPER = new NagadHelper($config);
+        $this->setTimeZone($this->HELPER->getTimeZone());
+        date_default_timezone_set($this->TIMEZONE);
+
+        /**
+         * Before activating production environment be confirm that your system is ok and out of bug
+         * it is highly recommended to test your environment using development environment
+         * your ip,domain and callback_url should be whitelisted in Nagad end
+         */
+
+        $this->BASE_URL = $this->HELPER->getNagadMethod() == 'sandbox' ? config('nagad.domain.sandbox') : config('nagad.domain.live');
+        $this->MERCHANT_ID = $this->HELPER->getNagadMerchantID();
+        $this->MERCHANT_ACCOUNT = $this->HELPER->getNagadAccount();
+        $this->CALLBACK_URL = route($this->HELPER->getCallBackUrl());
         $this->DATETIME = now()->format('YmdHis');
+
     }
     
     /**
@@ -200,6 +212,20 @@ class Nagad extends NagadGenerator
     public function getAdditionalData($object = true)
     {
         return json_decode($this->VERIFIED_RESPONSE['additionalMerchantInfo'], $object);
+    }
+
+    /**
+     * @param $timeZone
+     * @since v1.3.1
+     */
+    public function setTimeZone($timeZone)
+    {
+        if (!empty($timeZone)) {
+            $this->TIMEZONE = $timeZone;
+        } else {
+            $this->TIMEZONE = 'Asia/Dhaka';
+        }
+
     }
 
 }

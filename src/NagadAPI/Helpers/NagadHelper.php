@@ -3,6 +3,25 @@ namespace NagadAPI\Helpers;
 
 class NagadHelper 
 {
+    private $nagadMethod;
+    private $nagadAccount;
+    private $nagadMerchantID;
+    private $merchantPrivateKey;
+    private $pgPublicKey;
+    private $timeZone;
+    private $callBackUrl;
+
+    public function __construct($config)
+    {
+        $this->nagadMethod = $config['NAGAD_METHOD'];
+        $this->nagadAccount = $config['NAGAD_APP_ACCOUNT'];
+        $this->nagadMerchantID = $config['NAGAD_APP_MERCHANTID'];
+        $this->merchantPrivateKey = $config['NAGAD_APP_MERCHANT_PRIVATE_KEY'];
+        $this->pgPublicKey = $config['NAGAD_APP_MERCHANT_PG_PUBLIC_KEY'];
+        $this->timeZone = $config['NAGAD_APP_TIMEZONE'];
+        $this->callBackUrl = $config['NAGAD_CALL_BACK_URL'];
+    }
+
     /**
      * Generate Random string
      */
@@ -20,9 +39,9 @@ class NagadHelper
     /**
      * Generate public key
      */
-    public static function EncryptDataWithPublicKey($data)
+    function EncryptDataWithPublicKey($data)
     {
-        $pgPublicKey = config('nagad.merchant.key.public');
+        $pgPublicKey = $this->getPgPublicKey();
         $public_key = "-----BEGIN PUBLIC KEY-----\n" . $pgPublicKey . "\n-----END PUBLIC KEY-----";
         $key_resource = openssl_get_publickey($public_key);
         openssl_public_encrypt($data, $crypttext, $key_resource);
@@ -32,9 +51,9 @@ class NagadHelper
     /**
      * Generate signature
      */
-    public static function SignatureGenerate($data)
+    public function SignatureGenerate($data)
     {
-        $merchantPrivateKey = config('nagad.merchant.key.private');
+        $merchantPrivateKey = $this->getMerchantPrivateKey();
         $private_key = "-----BEGIN RSA PRIVATE KEY-----\n" . $merchantPrivateKey . "\n-----END RSA PRIVATE KEY-----";
         openssl_sign($data, $signature, $private_key, OPENSSL_ALGO_SHA256);
         return base64_encode($signature);
@@ -43,7 +62,7 @@ class NagadHelper
     /**
      * get clinet ip
      */
-    public static function getClientIp()
+    public function getClientIp()
     {
         $ipaddress = '';
         if (isset($_SERVER['HTTP_CLIENT_IP']))
@@ -66,9 +85,9 @@ class NagadHelper
     /**
      * Decrypt with Private KEY 
      * */
-    public static function DecryptDataWithPrivateKey($crypttext)
+    public function DecryptDataWithPrivateKey($crypttext)
     {
-        $merchantPrivateKey = config('nagad.merchant.key.private');
+        $merchantPrivateKey = $this->getMerchantPrivateKey();
         $private_key = "-----BEGIN RSA PRIVATE KEY-----\n" . $merchantPrivateKey . "\n-----END RSA PRIVATE KEY-----";
         openssl_private_decrypt(base64_decode($crypttext), $plain_text, $private_key);
         return $plain_text;
@@ -78,14 +97,14 @@ class NagadHelper
      * Custom POST Method 
      */
 
-    public static function HttpPostMethod($PostURL, $PostData)
+    public function HttpPostMethod($PostURL, $PostData)
     {
         $url = curl_init($PostURL);
         $posttoken = json_encode($PostData);
         $header = array(
             'Content-Type:application/json',
             'X-KM-Api-Version:v-0.2.0',
-            'X-KM-IP-V4:' . self::getClientIp(),
+            'X-KM-IP-V4:' . $this->getClientIp(),
             'X-KM-Client-Type:PC_WEB'
         );
         
@@ -122,5 +141,142 @@ class NagadHelper
         echo curl_error($ch);
         curl_close($ch);
         return json_decode($file_contents, true);
+    }
+
+
+    private function generateEnv($config)
+    {
+        return $config;
+    }
+
+    /**
+     * @return mixed
+     * @since v1.3.1
+     */
+    public function getNagadMethod()
+    {
+        return $this->nagadMethod;
+    }
+
+    /**
+     * @param mixed $nagadMethod
+     * @since v1.3.1
+     */
+    public function setNagadMethod($nagadMethod)
+    {
+        $this->nagadMethod = $nagadMethod;
+    }
+
+    /**
+     * @return mixed
+     * @since v1.3.1
+     */
+    public function getNagadAccount()
+    {
+        return $this->nagadAccount;
+    }
+
+    /**
+     * @param mixed $nagadAccount
+     * @since v1.3.1
+     */
+    public function setNagadAccount($nagadAccount)
+    {
+        $this->nagadAccount = $nagadAccount;
+    }
+
+    /**
+     * @return mixed
+     * @since v1.3.1
+     */
+    public function getCallBackUrl()
+    {
+        return $this->callBackUrl;
+    }
+
+    /**
+     * @param mixed $callBackUrl
+     * @since v1.3.1
+     */
+    public function setCallBackUrl($callBackUrl)
+    {
+        $this->callBackUrl = $callBackUrl;
+    }
+
+    /**
+     * @return mixed
+     * @since v1.3.1
+     */
+    public function getNagadMerchantID()
+    {
+        return $this->nagadMerchantID;
+    }
+
+    /**
+     * @param mixed $nagadMerchantID
+     * @since v1.3.1
+     */
+    public function setNagadMerchantID($nagadMerchantID)
+    {
+        $this->nagadMerchantID = $nagadMerchantID;
+    }
+
+    /**
+     * @return mixed
+     * @since v1.3.1
+     */
+
+    /**
+     * @return mixed
+     * @since v1.3.1
+     */
+    public function getMerchantPrivateKey()
+    {
+        return $this->merchantPrivateKey;
+    }
+
+    /**
+     * @param mixed $merchantPrivateKey
+     * @since v1.3.1
+     */
+    public function setMerchantPrivateKey($merchantPrivateKey)
+    {
+        $this->merchantPrivateKey = $merchantPrivateKey;
+    }
+
+    /**
+     * @return mixed
+     * @since v1.3.1
+     */
+    public function getPgPublicKey()
+    {
+        return $this->pgPublicKey;
+    }
+
+    /**
+     * @param mixed $pgPublicKey
+     * @since v1.3.1
+     */
+    public function setPgPublicKey($pgPublicKey)
+    {
+        $this->pgPublicKey = $pgPublicKey;
+    }
+
+    /**
+     * @return mixed
+     * @since v1.3.1
+     */
+    public function getTimeZone()
+    {
+        return $this->timeZone;
+    }
+
+    /**
+     * @param mixed $timeZone
+     * @since v1.3.1
+     */
+    public function setTimeZone($timeZone)
+    {
+        $this->timeZone = $timeZone;
     }
 }
