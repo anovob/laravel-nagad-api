@@ -140,13 +140,27 @@ To Start payment, in your NagadController:
 ```
 
 To receive error response use this in App/Exceptions/Handler.php:
-
-```php
+Upto Laravel 7
+```php    
+use NagadAPI\Exceptions\NagadException;
 public function render($request, Exception $exception)
 {
     if($exception instanceof NagadException) {
     //return custom error page when custom exception is thrown
-    return response()->view('errors.nagad', compact('exception'));
+        return response()->view('errors.nagad', compact('exception'));
+    }
+
+    return parent::render($request, $exception);
+}
+```
+Laravel 8
+```php    
+use NagadAPI\Exceptions\NagadException;
+public function render($request, Throwable $exception)
+{
+    if($exception instanceof NagadException) {
+    //return custom error page when custom exception is thrown
+        return response()->view('errors.nagad', compact('exception'));
     }
 
     return parent::render($request, $exception);
