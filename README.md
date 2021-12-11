@@ -57,7 +57,7 @@ NAGAD_CALLBACK_URL=nagad.callback
 
 To Start payment, in your NagadController:
 ```php    
-    use NagadAPI\Facades\Nagad;    
+    use NagadAPI\Nagad;    
     use Illuminate\Http\Request;
     
     public function createPayment() 
